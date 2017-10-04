@@ -1,0 +1,282 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Dashboard_controller extends MY_Controller {
+	
+	private static $_user_id = null;
+	
+	
+	
+    public function __construct()
+	{
+		parent::__construct();
+		
+                     $this->load->model('Common_model');
+                     if(!$this->session->userdata('logged_in'))
+                    {
+                      self::$_user_id = null;
+                      redirect('userlogin');
+                  }else{
+                    $session = $this->session->userdata('logged_in');
+                    self::$_user_id = base64_decode($session['user_id']);
+                  }   
+	}
+		
+	
+	 public function index()
+	{
+		
+		$this->load->view('front/includes/header');
+		$this->load->view('front/includes/sidebar');
+		$this->load->view('front/dashboard/dashboard_view');
+		$this->load->view('front/includes/footer');
+	}
+	 
+	public function foreign()
+	{
+		
+		$this->load->view('back/includes/header');
+		$this->load->view('back/includes/sidebar');
+		$this->load->view('back/dashboard/foreign_resident');
+		$this->load->view('back/includes/footer');
+	}
+      public function foreignResident()
+	{
+		
+		$this->load->view('front/includes/header');
+		$this->load->view('front/includes/sidebar');
+		$this->load->view('front/foreign_resident');
+		$this->load->view('front/includes/footer');
+	}  
+     public function foreignResidentAction()
+	 
+ {                
+	 	     $this->form_validation->set_error_delimiters('<p class="text text-danger error">', '</p>');
+			 $this->form_validation->set_rules('tax_no','tax no','trim|required');
+			 $this->form_validation->set_rules('abn_no','abn no','trim|required');
+			 $this->form_validation->set_rules('fullname','full name','trim|required');
+			 $this->form_validation->set_rules('vendor_type','vendor type','trim|required');
+			 $this->form_validation->set_rules('email','email','trim|required');
+			 $this->form_validation->set_rules('phone_no','phone no ','trim|required');
+			 $this->form_validation->set_rules('addr_vendor','addr_vendor','trim|required');
+			
+
+           if ($this->form_validation->run() == FALSE)
+            {
+						 $error = array(
+						 
+						'tax_no'     => form_error('tax_no'),
+						'abn_no'     => form_error('abn_no'),
+						'fullname'   => form_error('fullname'),
+						'vendor_type' => form_error('vendor_type'),
+						'email'      => form_error('email'),
+						'phone_no'   => form_error('phone_no'),
+						'addr_vendor'=> form_error('addr_vendor')
+					);
+						 
+			     $return= array('status' => false, 'message' => 'All fields are required', 'data' => $error);
+            }
+        else
+            {          $user_id                  = self::$_user_id;
+                       $tax_no                   = $this->input->post('tax_no'); 
+                       $abn_no                   = $this->input->post('abn_no');
+                       $fullname                 = $this->input->post('fullname');
+                       $vendortype               = $this->input->post('vendor_type');
+                       $email                    = $this->input->post('email');
+                       $phone_no                 = $this->input->post('phone_no');
+                       $addr_vendor              = $this->input->post('addr_vendor');
+                       $contact_date             = $this->input->post('contact_date');
+                       $expected_date            = $this->input->post('expected_date');
+                       $residency_status         = $this->input->post('residency_status');
+                       $australian_tax           = $this->input->post('australian_tax');
+                       $holding_property         = $this->input->post('holding_property');
+					   /*individual data post*/
+                       $individual_date_birth    = $this->input->post('individual_date_birth');
+                       $migrating_australia      = $this->input->post('migrating_settling_australia');
+                       $returning_live_australia = $this->input->post('returning_live_australia');
+                       $employment_contract      = $this->input->post('employment_contract_permanent_employment');
+                       $exchange_program         = $this->input->post('exchange_program');
+                       $full_time_education      = $this->input->post('full_time_education');
+                       $holiday_casual_employmen = $this->input->post('holidaying_or_casual_employmen');
+                       $visiting_relatives       = $this->input->post('visiting_friends_or_relatives');
+                       $other                    = $this->input->post('other');
+                       $stayed_or_intend_stay    = $this->input->post('have_you_stayed_or_do_you_intend_stay');
+                       $australia_family_friends = $this->input->post('live_in_australia_family_friends');
+                       $australia_Hotel_motel    = $this->input->post('live_in_australia_Hotel_motel');
+                       $aus_university_campus    = $this->input->post('live_in_australia_university_campus');
+                      $aus_own_buying_home       = $this->input->post('live_in_australia_own_buying_home');
+                      $renting_leasing_accomm    = $this->input->post('live_in_australia_renting_leasing_accommodation');
+					  
+                      $spouse_dependant_children= $this->input->post('spouse_dependant_children');
+                      $currently_living_with_you= $this->input->post('currently_living_with_you');
+                      $remaining_overseas       = $this->input->post('remaining_overseas');
+                      $coming_to_live_with_you  = $this->input->post('coming_to_live_with_you');
+                      $some_remaining_overseas  = $this->input->post('some_with_you_and_remaining_overseas');
+                      $hold_majority_assets     = $this->input->post('hold_majority_of_your_assets');
+                      $churches_community       =$this->input->post('are_you_member_of_any_clubs_churches_community');
+                      $aus_six_month            = $this->input->post('have_you_stayed_or_do_you_intend_stay_australia_six_month');
+                      $social_or_economic       = $this->input->post('social_or_economic_ties_to_country');
+                      $aus_intermittently       = $this->input->post('intermittently_183day');
+                      $place_of_abode_aus       = $this->input->post('place_of_abode_outside_australia');
+                      $intend_takeup_residence  = $this->input->post('intend_to_takeup_residence_in_australia');
+                       /*trust data post*/
+					  $name_of_trustee          = $this->input->post('name_of_trustee');  
+					  $is_this_unit_trust       = $this->input->post('is_this_unit_trust');  
+					  $property_situated_aus     = $this->input->post('property_situated_australia');  
+					  $trust_carry_business_aus  = $this->input->post('trust_carry_business_australia');  
+					  $trust_management_control  = $this->input->post('trust_management_control');  
+					  $australian_resident       = $this->input->post('australian_resident');  
+					  $is_trustee_aus_resident   = $this->input->post('is_trustee_aus_resident');  
+					  $management_control_aus    = $this->input->post('management_control_aus');  
+					   /*company data post*/
+					  $incorporated_australia    = $this->input->post('is_company_incorporated_in_australia');
+					  $property_situated_aust    = $this->input->post('property_situated_aust');
+					  $company_carry_business_aus= $this->input->post('company_carry_business_aus');
+					  $company_management_aus    = $this->input->post('company_management_aus');
+					  $controlled_shareholder_aus= $this->input->post('controlled_shareholders_aus');
+					  /*superfund data post*/
+					   $superannuation_fund      = $this->input->post('superannuation_fund');
+					   $fund_estab_asset_fund    = $this->input->post('fund_estab_asset_fund');
+					   $fund_control_aus         = $this->input->post('fund_control_aus');
+					   $fund_have_any_member     = $this->input->post('fund_have_any_member');
+					   $do_either_following_apply= $this->input->post('do_either_following_apply');
+					  
+                       $data= array(
+					   'user_id'                 => $user_id,
+					   'tax_file_no'             => $tax_no,
+                       'abn_no'                  => $abn_no,
+                       'full_name'               => $fullname,
+                       'vendor_type'             => $vendortype,
+                       'email_address'           => $email,
+                       'phone_no'                => $phone_no,
+                       'address_of_vendor'       => $addr_vendor,
+                       'contact_date'            => $contact_date,
+                       'expected_date'           => $expected_date,
+                       'residency_status_changed'=> $residency_status,
+                       'lodged_australian_tax'   => $australian_tax,
+                       'holding_property'        => $holding_property
+                                   
+                                 );
+                         
+						$individual_data= array( 
+					   
+					   'user_id'                                         => $user_id,
+					   'date_of_birth'                                   => $individual_date_birth,
+                       'migrating_settling_australia'                    => $migrating_australia,
+                       'returning_live_australia'                        => $returning_live_australia,
+                       'employment_contract_permanent_employment'        => $employment_contract,
+                       'exchange_program'                                => $exchange_program,
+                       'full_time_education'                             => $full_time_education,
+                       'holidaying_or_casual_employmen'                  => $holiday_casual_employmen,
+                       'visiting_friends_or_relatives'                   => $visiting_relatives,
+                       'other'                                           => $other,
+                       'have_you_stayed_or_do_you_intend_stay'           => $stayed_or_intend_stay,
+                       'live_in_australia_family_friends'                => $australia_family_friends,
+                       'live_in_australia_Hotel_motel'                   => $australia_Hotel_motel,
+                       'live_in_australia_university_campus'             => $aus_university_campus,
+                       'live_in_australia_own_buying_home'               => $aus_own_buying_home,
+                       'live_in_australia_renting_leasing_accommodation'  => $renting_leasing_accomm,
+                       'spouse_dependant_children'                        => $spouse_dependant_children,
+                       'currently_living_with_you'                        => $currently_living_with_you,
+                       'remaining_overseas'                               => $remaining_overseas, 
+                       'coming_to_live_with_you'                          => $coming_to_live_with_you,
+                       'some_with_you_and_remaining_overseas'             => $some_remaining_overseas,
+                       'hold_majority_of_your_assets'                     => $hold_majority_assets,
+                       'are_you_member_of_any_clubs_churches_community'            => $churches_community,
+                       'have_you_stayed_or_do_you_intend_stay_australia_six_month' => $aus_six_month,
+                       'social_or_economic_ties_to_country'                        => $social_or_economic,
+                       'australia_either_continue_intermittently_183day'           => $aus_intermittently,
+                       'place_of_abode_outside_australia'                          => $place_of_abode_aus,
+                       'intend_to_takeup_residence_in_australia'                   => $intend_takeup_residence
+                                   
+                         );
+						$trust_data= array(
+					   'user_id'                                                       => $user_id,
+                       'name_of_trustee'                                                => $name_of_trustee,
+                       'is_this_unit_trust'                                             => $is_this_unit_trust,
+                       'any_property_of_the_trust_situated_in_australia'                => $property_situated_aus,
+                       'trust_carry_on_business_in_australia'                           => $trust_carry_business_aus,
+                       'trust_central_management_control'                               => $trust_management_control,
+                       'australian_resident_hold_more_than_50percent_beneficial_interes'=> $australian_resident,
+                       'is_trustee_of_the_trust_australian_resident'                    => $is_trustee_aus_resident,
+                       'is_trust_central_management_control_in_australia'               => $management_control_aus
+                                   
+                         );	
+								 
+						$company_data= array(
+					    'user_id'                                                      => $user_id,
+                       'is_company_incorporated_in_australia'                          => $incorporated_australia,
+                       'property_of_company_situated_in_australia'                     => $property_situated_aust,
+                       'does_the_company_carry_on_business_in_australia'               => $company_carry_business_aus,
+                       'company_central_management_and_control_in_australia'           => $company_management_aus,
+                       'voting_power_controlled_shareholders_who_are_resident_in_aus'  => $controlled_shareholder_aus
+                       
+                       );			 
+					  $superfund_data= array(
+					   'user_id'                                                   => $user_id,
+                       'is_entity_australian_superannuation_fund'                   => $superannuation_fund,
+                       'fund_established_in_australia_or_is_any_asset_of_the_fund'  => $fund_estab_asset_fund,
+                       'fund_central_management_control_in_australia'               => $fund_control_aus,
+                       'fund_have_any_member'                                       => $fund_have_any_member,
+                       'do_either_of_the_following_apply'                           => $do_either_following_apply
+                       
+                        );	
+             	 
+						 $where=array('user_id'=>$user_id);		 
+						 $userdata=$this->Common_model->select_data('vendor_form',$where);
+						 $userid=(!empty($userdata)) ? $userdata[0]->user_id :'';
+						  $vid=(!empty($userdata)) ? $userdata[0]->id : '';
+						 $vendor_type=(!empty($userdata)) ? $userdata[0]->vendor_type :'';
+						
+						 
+						 if(!empty($vendortype == 4)){
+						 if($userid == $user_id){
+							 $individual_id = array('user_id'=>$user_id);	
+						     $vendordata    = $this->Common_model->update_data('vendor_form',$where,$data);
+						     $individual    = $this->Common_model->update_data('vendor_individual',$individual_id,$individual_data);
+						    
+						  $return  = array('status' =>true, 'message' => 'Your Information updated Sucessfuly ...'
+						  );
+						 }else{ 
+							 $vendordata    = $this->Common_model->insert_data('vendor_form',$data);
+						     $individual    = $this->Common_model->insert_data('vendor_individual',$individual_data);
+							 $return  = array('status' =>true, 'message' => 'Your Information Sucessfuly Added...');
+						    }
+						 
+						 }elseif(!empty($vendortype== 1)){
+							 
+							 if($userid == $user_id){
+							 $trust_id = array('user_id'=>$user_id);	 
+						     $vendordata1    = $this->Common_model->update_data('vendor_form',$where,$data);
+							 
+						     $individual1    = $this->Common_model->update_data('vendor_trust',$trust_id,$trust_data);
+						    
+						  $return  = array('status' =>true, 'message' => 'Your Information updated Sucessfuly ...'
+						  );
+						 }else{
+							 $vendordata1   = $this->Common_model->insert_data('vendor_form',$data);
+						     $individual1   = $this->Common_model->insert_data('vendor_trust',$trust_data);
+							 $return  = array('status' =>true, 'message' => 'Your Information Sucessfuly Added...'                );
+						    }
+							 
+							 
+							
+						 }else{
+							 
+							  $return  = array('status' =>false, 'message' =>'Some thing went wrong...');
+							 
+						    }
+						 
+						 
+                         
+            }
+
+            echo json_encode($return);
+
+		
+	}  
+
+}
+
+
+-
