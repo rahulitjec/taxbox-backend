@@ -40,7 +40,7 @@ $config['base_url'] = 'http://www.argalon.net/foreign_resident/';
 | variable so that it is blank.
 |
 */
-$config['index_page'] = '';
+$config['index_page'] = 'index.php';
 
 /*
 |--------------------------------------------------------------------------
